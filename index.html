@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>EGIS - The University of Arizona</title>
+
+
+	<!-- scripts for jQuery -->
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css">
+	<link rel="stylesheet" href="http://view.jquerymobile.com/1.3.2/dist/demos/_assets/css/jqm-demos.css">
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+	<script src="http://view.jquerymobile.com/1.3.2/dist/demos/_assets/js/index.js"></script>
+	<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+
+	<!-- scripts for toc -->
+	<link rel="stylesheet" href="jqwidgets/styles/jqx.base.css" type="text/css" />
+	<script type="text/javascript" src="jqwidgets/jqxcore.js"></script>
+	<script type="text/javascript" src="jqwidgets/jqxbuttons.js"></script>
+	<script type="text/javascript" src="jqwidgets/jqxscrollbar.js"></script>
+	<script type="text/javascript" src="jqwidgets/jqxpanel.js"></script>
+	<script type="text/javascript" src="jqwidgets/jqxtree.js"></script>
+	<script type="text/javascript" src="jqwidgets/jqxcheckbox.js"></script>
+
+	<!-- scripts for esri mapping -->
+	<link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/claro.css">
+	<link rel="stylesheet" href="http://js.arcgis.com/3.10/js/esri/css/esri.css">
+	<script src="http://js.arcgis.com/3.10/"></script>
+
+	<!--custom scripts -->
+	<link rel="stylesheet" href="css/jqm-inlinetabs.min.css"> <!-- CSS for tabbed view in Search panel -->
+	<link rel="stylesheet" href="css/map.css">
+	<!--<link rel="stylesheet" href="css/tooltip.css">-->
+	<!--<link rel="stylesheet" href="css/jquery.fs.naver.css"> <!--Responsive content -->
+	<!--<script src="js/jquery.fs.naver.min.js"></script> <!--Responsive content -->
+	<script src="js/map.js"> </script>
+	<script src="js/toc.js"> </script>
+	<script src="js/feedback.js"> </script>
+	<script src="js/measure.js"> </script>
+	<script src="js/print.js"> </script>
+	<script src="js/share.js"> </script>
+	<script src="js/search.js"> </script>
+	<script src="js/selection.js"> </script>
+	<script src="js/security.js"> </script>
+	<!--<script src="js/tooltip.js"> </script> <!-- http://osvaldas.info/elegant-css-and-jquery-tooltip-responsive-mobile-friendly -->
+	<!--<script src="js/detectmobilebrowsers.js"></script> <!-- To detect if the app is opened in mobile browser -->
+	<script src="js/jqm-inlinetabs.min.js"></script>  <!-- Script to have tabbed view in Search panel -->
+	<script src="http://jquery.thewikies.com/browser/jquery.browser.min.js"></script> <!-- For Browser detection -->
+	<script src="js/identify.js"> </script>
+	<script src="js/customQuery.js"> </script>
+</head>
+
+<body class="claro">
+	<div data-role="page" class="jqm-demos ui-responsive-panel" id="panel-fixed-page1">
+
+		<!-- Header -->
+		<div data-role="header" data-theme="f" data-position="fixed" data-tap-toggle="false" id="banner-div">
+				<div id="topBanner">
+					<a href='http://arizona.edu' target='_blank'><img src='images/ua_line_logo_white.png' id='A_logo'/></a>
+				</div>
+				<div id="bottomBanner">
+					<div id="appName">Campus 360</div>
+					<a href="http://maps.arizona.edu/enterprisegis/" target='_blank'><div id="appLogo"></div></a>
+					<div id="selectionAlert" class="stopSelections">YOU ARE CURRENTLY USING THE SELECT TOOL</div>
+
+					<div id="main-menu" data-role="navbar" data-corners="false" data-type="horizontal">
+						<ul>
+							<li><a id="toc" href="#toc-panel" data-role="button" data-corners="false" title="Layers" class="stopSelections"></a></li>
+							<li><a id="search" href="#search-panel" data-role="button" data-corners="false" title="Search" class="stopSelections"></a></li>
+							<li><a id="tools" href="#tools-panel" data-role="button" data-corners="false" title="Tools" class="stopSelections"></a></li>
+							<li><a id="login" href="#" data-role="button" data-corners="false" title="Login" class="stopSelections"></a></li>
+							<li><a id="help" href="#help-panel" data-role="button" data-corners="false" title="Help" class="stopSelections"></a></li>
+						</ul>
+					</div>
+				</div>
+
+		</div>
+		<!--End of header -->
+
+		<!-- Content -->
+		<div data-role="content" class="jqm-content">
+			<div id="map"></div>
+			<div id="printOutline"></div>
+			<div id="zoomSlider" class="zoomSlider" data-role="controlgroup" data-type="vertical" data-corners="false">
+				<a id="zoomIn" href="javascript:zoomIn()" class="zoom" data-role="button" data-corners="false" title="Zoom In"></a>
+				<a id="zoomOut" class="zoom" href="javascript:zoomOut()" data-role="button" data-corners="false" title="Zoom Out"></a>
+				<a id="refresh" class="zoom" href="javascript:window.location = window.location.pathname;" data-role="button" data-corners="false" title="Refresh"></a>
+				<a id="clearMap" class="zoom stopSelections" href="javascript:clearMap()" data-role="button" data-corners="false" title="Clear All Graphics"></a>
+				<a id="zoomToExtent" class="zoom stopSelections" href="javascript:showZoomMenu()" data-role="button" data-corners="false" title="Zoom to UA Sites"></a>
+				<!-- <a id="centerMyLocation" class="zoom stopSelections" href="javascript:centerOnMyLocation()" data-role="button" data-corners="false" title="Center Map on My Current Location"></a> -->
+				<div id="LocateButton"></div>
+			</div>
+
+			<!-- Query results window -->
+			<div id="query-results" class="query-results">
+				<h3 id="queryResultsHeader" class="panelHeader">QUERY RESULTS</h3>
+				<div class="closePanel" onclick="closePanel('query-results')">x</div>
+				<a class="downloadTable" ></a>
+
+				<div id="queryResultsContainer" class="queryResultsContainer">
+					<table data-role="table" id="queryResults-table" data-mode="reflow" class="ui-responsive table-stroke">
+				  <thead>
+				    <tr id="tableHeaderRow-Query">
+				      <!-- Content will be dynamically appended here -->
+				    </tr>
+				  </thead>
+				  <tbody id="tableBody-Query">
+				    	<!-- Content will be dynamically appended here -->
+				  </tbody>
+					</table>
+				</div>
+			</div>
+			<!-- End of Query results window -->
+
+
+			<div id="zoomToExtentMenu">
+				<span>UA Campuses</span>
+				<ul data-role="listview" data-inset="true">
+					<li><a href="javascript:zoomToSitePoint(10, 17)">Main Campus</a></li>
+					<li><a href="javascript:zoomToSitePoint(19, 16)">Phoenix Biomedical Campus</a></li>
+					<li><a href="javascript:zoomToSitePoint(108, 16)">South Campus</a></li>
+				</ul>
+				<span>UA Locations</span>
+				<ul data-role="listview" data-inset="true">
+					<li><a href="javascript:zoomToSitePoint(134, 16)">UA Eller MBA</a></li>
+					<li><a href="javascript:zoomToSitePoint(128, 17)">UA Downtown</a></li>
+					<li><a href="javascript:zoomToSitePoint(90, 16)">UA Douglas</a></li>
+					<li><a href="javascript:zoomToSitePoint(84, 16)">UA Santa Cruz</a></li>
+					<li><a href="javascript:zoomToSitePoint(59, 16)">UA Science and Technology Park</a></li>
+					<li><a href="javascript:zoomToSitePoint(143, 16)">UA Pima West</a></li>
+					<li><a href="javascript:zoomToSitePoint(144, 16)">UA Pima Desert Vista</a></li>
+					<li><a href="javascript:zoomToSitePoint(200, 16)">UA Pima Downtown</a></li>
+					<li><a href="javascript:zoomToSitePoint(157, 16)">UA Pima East</a></li>
+					<li><a href="javascript:zoomToSitePoint(158, 16)">UA Chandler Downtown</a></li>
+				</ul>
+				<span>Other UA Sites</span>
+				<ul data-role="listview" data-inset="true">
+					<li><a href="javascript:zoomToSitePoint(21, 16)">Biosphere 2</a></li>
+					<li><a href="javascript:zoomToSitePoint(18, 16)">Boyce-Thompson Arboretum</a></li>
+					<li><a href="javascript:zoomToSitePoint(101, 16)">Tumamoc Hill</a></li>
+					<li><a href="javascript:zoomToSitePoint(66, 16)">Mt. Lemmon Observatory</a></li>
+				</ul>
+				<ul data-role="listview" data-inset="true">
+					<li><a href="javascript:zoomToExtent(32.2235, -110.9267, 12)">Tucson</a></li>
+					<li><a href="javascript:zoomToExtent(33.4532, -112.0786, 12)">Phoenix</a></li>
+					<li><a href="javascript:zoomToExtent(34.3083, -111.7933, 7)">Arizona</a></li>
+				</ul>
+				<div class="closeZoomMenu" onclick="closeZoomMenu()"></div>
+			</div>
+		</div>
+		<!-- End of content -->
+
+
+		<!-- Tools Panel -->
+		<div data-role="panel" data-dismissible="false" data-position="right" data-animate="true" data-display="overlay" data-swipe-close="false" data-position-fixed="true" data-theme="a" id="tools-panel">
+
+			<h3 id="toolsHeader" class="panelHeader">TOOLS</h3>
+			<div class="closePanel stopSelections" onclick="closePanel('tools-panel')"></div>
+
+			<div data-role="collapsible-set" data-theme="c">
+				<div data-role="collapsible" id="collapseFeedback">
+                    <h3 class="stopSelections">Feedback</h3>
+                    <form id="form" data-ajax="false" method="post" enctype="multipart/form-data" onsubmit="printBeforeSubmit();">
+
+                        <div class='feedbackDescText'>STEP 1: Provide written description below<span class='required_fields'>*</span></div>
+                        <textarea type="text" id="feedback" name="feedback" onfocus="javascript:this.value='';" required /></textArea>
+                        <textarea type="text" id="geometry" name="geometry" style="visibility: hidden" /></textArea><br/>
+
+                        <div class='feedbackDescText'>STEP 2: Attach a picture of the issue</div>
+                        <input type="file" name="file" id="file" accept="image/gif, image/jpeg, image/png, image/bmp"><br/>
+                        <!--http://stackoverflow.com/questions/4328947/limit-file-format-when-using-input-type-file-->
+
+
+                        <div class='feedbackDescText'>STEP 3: Sketch issue on the map</div>
+                        <div id="draw-tools" data-role="controlgroup" data-corners="false" data-type="horizontal">
+                            <a href="javascript:tb.activate(esri.toolbars.Draw.POINT);disableClickActions();" data-role="button" data-corners="false" id="point" class="point" title="Point" rel="tooltip"></a>
+                            <a href="javascript:tb.activate(esri.toolbars.Draw.POLYLINE);disableClickActions();" data-role="button" data-corners="false" id="polyline" class="polyline" title="Polyline" rel="tooltip"></a>
+                            <a href="javascript:tb.activate(esri.toolbars.Draw.POLYGON);disableClickActions();" data-role="button" data-corners="false" id="polygon" class="polygon" title="Polygon" rel="tooltip"></a>
+                            <a href="javascript:tb.activate(esri.toolbars.Draw.FREEHAND_POLYGON);disableClickActions();" data-role="button" data-corners="false" id="freehand_polygon" class="freehand_polygon" title="Freehand Polygon" rel="tooltip"></a>
+                            <a href="javascript:sketchGraphics.clear();" data-role="button" data-corners="false" id="clear_graphics" class="clear_graphics" title="Clear Graphics" rel="tooltip"></a>
+                        </div>
+                        <br />
+
+                        <div id="screencapture" data-role="button" data-corners="false" style="visibility: hidden"></div>
+                        <textarea type="text" name="Print_Image" id="Print_Image"></textarea>
+
+                        <div class='feedbackDescText'>STEP 4: Submit feedback</div>
+                        <button id="submit" type="submit" data-theme="b" name="submit" data-corners="false" value="submit-value">Submit</button>
+                        <div id="results"></div><br/>
+                        <div><span class='required_fields'>*</span>Mandatory fields </div>
+                        <p class="feedbackSummary"><a href="#" id="feedbackSummary" title="Using the Feedback Tool"></a> </p>
+                        <p class="feedbackSummaryText">
+                            The feedback tool provides a way for the campus community to help keep our GIS data correct and up to date. You may provide a written description of something to be corrected, provide a photo of it, make a sketch of the location and submit the feedback. If your feedback has to do with how the map functions (as opposed to the content of what is shown), it will help us to know what type of device and browser you are using to view the map.
+                            <br/><br/>We will research and address issues reported. For additional information on using this tool, please check the help section of this interactive map.
+                            <br/><br/>If you would like to be contacted about your feedback, please include contact information in your message.
+                        </p>
+
+                    </form>
+                </div>
+
+                <div data-role="collapsible" id="collapseFeedback">
+                    <h3 class="stopSelections">Sketch</h3>
+                    <form id="form" data-ajax="false" method="post" enctype="multipart/form-data" onsubmit="printBeforeSubmit();">
+
+                        <div class='feedbackDescText'>Drawing Tools</div>
+                        <div id="draw-tools" data-role="controlgroup" data-corners="false" data-type="horizontal">
+                            <a href="javascript:tb.activate(esri.toolbars.Draw.POINT);disableClickActions();" data-role="button" data-corners="false" id="point" class="point" title="Point" rel="tooltip"></a>
+                            <a href="javascript:tb.activate(esri.toolbars.Draw.POLYLINE);disableClickActions();" data-role="button" data-corners="false" id="polyline" class="polyline" title="Polyline" rel="tooltip"></a>
+                            <a href="javascript:tb.activate(esri.toolbars.Draw.POLYGON);disableClickActions();" data-role="button" data-corners="false" id="polygon" class="polygon" title="Polygon" rel="tooltip"></a>
+                            <a href="javascript:tb.activate(esri.toolbars.Draw.FREEHAND_POLYGON);disableClickActions();" data-role="button" data-corners="false" id="freehand_polygon" class="freehand_polygon" title="Freehand Polygon" rel="tooltip"></a>
+                            <a href="javascript:addEditableText();" data-role="button" data-corners="false" id="add_text" class="add_text" title="Add Text" rel="tooltip"></a>
+                            <a href="javascript:sketchGraphics.clear();" data-role="button" data-corners="false" id="clear_sketch" class="clear_graphics" title="Clear Sketches" rel="tooltip"></a>
+                        </div>
+
+                        <p class="sketch-help"><a href="#" id="sketch-help" title="Using the Sketch Tool"></a> </p>
+                        <p class="sketch-help-text">
+                            The sketch tool provides a way for the campus community to help keep our GIS data correct and up to date. You may provide a written description of something to be corrected, provide a photo of it, make a sketch of the location and submit the feedback. If your feedback has to do with how the map functions (as opposed to the content of what is shown), it will help us to know what type of device and browser you are using to view the map.
+                        </p>
+
+                    </form>
+                </div>
+
+				<div data-role="collapsible" id="collapseMeasure">
+					<h3 class="stopSelections">Measure</h3>
+
+					<div id="measure-tools" data-role="controlgroup" data-corners="false" data-type="horizontal">
+						<a href="javascript:tb_measure.activate(esri.toolbars.Draw.POINT);disableClickActions();sketchGraphics.clear();" data-role="button" name="test" data-corners="false" id="measure-location" class="measure-location" title="Co-ordinate Picker" rel="tooltip"></a>
+						<a href="javascript:tb_measure.activate(esri.toolbars.Draw.POLYLINE);disableClickActions();sketchGraphics.clear();" data-role="button" name="test" data-corners="false" id="measure-length" class="measure-length" title="Length" rel="tooltip"></a>
+						<a href="javascript:tb_measure.activate(esri.toolbars.Draw.POLYGON);disableClickActions();sketchGraphics.clear();" data-role="button" name="test" data-corners="false" id="measure-area" class="measure-area" title="Area" rel="tooltip"></a>
+						<a href="javascript:sketchGraphics.clear();" data-role="button" name="test" data-corners="false" id="A1" class="clear_graphics" title="Clear Graphics" rel="tooltip"></a>
+					</div>
+
+					<p class="measure-help"><a href="#" id="measure-help" title="Using the Measure Tool"></a> </p>
+						<p class="measure-help-text">
+							<strong><em>Step 1:</em></strong> Click on the Coordinate Picker, the Length measure icon, or the Area Measure icon<br /><br />
+
+							<strong><em>Step 2a:</em></strong> For coordinates of a point, click on the map and the coordinates will show in a window. You may switch between coordinates types (State Plane and Lat/Long) by clicking on the arrow icon at the bottom of the coordinate window.<br /><br />
+
+							<strong><em>Step 2b:</em></strong> For length measures, click a starting point and then click a second point, and then as many other points as desired, then double click to end the measurement. The measurement shows in a pop up window which allows the measurement units to be switched.<br /><br />
+
+							<strong><em>Step 2c:</em></strong> For area measures, click a starting point and then click a second point, and then as many other points as desired, then double click to end the measurement. The area defined by your clicks will be filled in and the area measurement shows in a pop up window which allows the measurement units to be switched.<br /><br />
+
+							<strong><em>Step 3:</em></strong> To clear measurements click the “X” icon.<br /><br />
+
+						</p>
+
+				</div>
+				<!--End of Measure collapsible content-->
+
+				<div data-role="collapsible">
+					<h3 class="stopSelections">Print</h3>
+					<div id="printDiv">
+						<label for="printTitle">Title</label>
+    				<input type="text" name="printTitle" id="printTitle" value="Campus 360"  />
+
+						<label for="print_options">Layout</label>
+						<select id="print_options" data-native-menu="true" data-corners="false" data-theme="f">
+							<option value="legendandmapLetter" selected>Map and Legend - 8.5"x11"</option>
+							<option value="legendandmapTabloid">Map and Legend - 11"x17"</option>
+							<option value="maponlyLetter">Map Only - 8.5"x11"</option>
+							<option value="maponlyTabloid">Map Only - 11"x17"</option>
+							<option value="legendonly">Legend Only - 8.5"x11"</option>
+							<!--<option value="A4 Landscape">A4 Landscape</option>
+							<option value="A4 Portrait">A4 Portrait</option>
+							<option value="Tabloid ANSI B Landscape">Tabloid ANSI B Landscape</option>
+							<option value="Tabloid ANSI B Portrait">Tabloid ANSI B Portrait</option>-->
+						</select>
+						<div id="print-recommendations">Best results when printed in Portrait Orientation</div><br />
+
+						<label for="print_output_format">Format</label>
+						<select id="print_output_format" data-native-menu="true" data-corners="false" data-theme="f">
+							<option value="PDF">PDF</option>
+							<option value="PNG32">PNG</option>
+						</select>
+
+						<a id="printPreview" data-role="button" data-corners="false" data-theme="b" href="javascript:togglePrintPreview()">Show Print Area</a>
+						<a id="print" data-role="button" data-corners="false" data-theme="b" href="javascript:print()">Print</a>
+						<div id="print-results"></div>
+						<p class="print-help"><a href="#" id="print-help" title="Using the Print Tool"></a> </p>
+						<p class="print-help-text">
+							<strong><em>Title:</em></strong> Type a custom name for your map in the "Title" box<br /><br />
+							<strong><em>Layout:</em></strong> Choose what to include in the print: map, legend, or both, and choose the print size (8.5"x11" or 11"x17")<br /><br />
+							<strong><em>Format:</em></strong> Choose the image format for print file to be created in - .pdf, .jpg, or .png<br /><br />
+							<strong><em>Show Print Area:</em></strong> Draws a red box on the screen indicating the extent of the map window which will be included in your print<br /><br />
+							<strong><em>Print:</em></strong> This will begin the process of creating the map image file. Once it is created you may save the image file or send it to a printer<br />
+						</p>
+
+					</div>
+				</div>
+				<!--End of Print collapsible content-->
+
+				<div data-role="collapsible">
+					<h3 class="stopSelections" id="shareHeader">Share</h3>
+					<input type="button" value="Create Share Link" onclick="generateShareURL()">
+					<input type="text" name="embedUrl" id="embedUrl" value="" data-mini="true" />
+
+					<div id="share-tools" data-role="controlgroup" data-corners="false" data-type="horizontal">
+						<a href="javascript:shareFacebook()" data-role="button" data-corners="false" id="shareFacebook" class="shareFacebook" title="Facebook" rel="tooltip"></a>
+						<a href="javascript:shareTwitter()" data-role="button" data-corners="false" id="shareTwitter" class="shareTwitter" title="Twitter" rel="tooltip"></a>
+						<a href="javascript:shareGoogle()" data-role="button" data-corners="false" id="shareGoogle" class="shareGoogle" title="Google+" rel="tooltip"></a>
+						<a href="javascript:shareLinkedin()" data-role="button" data-corners="false" id="shareLinkedin" class="shareLinkedin" title="LinkedIn" rel="tooltip"></a>
+						<a href="javascript:shareEmail()" data-role="button" data-corners="false" id="shareEmail" class="shareEmail" title="Email" rel="tooltip"></a> <!-- Yet to be implemented -->
+					</div>
+
+					<p class="howToShare"><a href="#" id="howToShare" title="Using the Create Share Link Tool"></a></p>
+					<div class="howToShare-content">
+						<p>
+							<em>Create Share Link</em> tool creates a URL that captures the current map state (scale and extent, layers turned on, etc.). You may send this link to others to paste into web browsers so that they can have the same view of the map as you.
+							<br/><br/><strong>Steps:</strong>
+							<br/>
+							<ul>
+								<li>Press "Create Share Link" button.</li>
+								<li>Copy the link and past into email or other documents you want to share.</li>
+								<li>If you would like to share the link via social media tools, click one of the social media icons to open that application and send the link.</li>
+							</ul>
+						</p>
+					</div>
+
+				</div>
+				<!-- End of Share collapsible content -->
+
+
+				<div data-role="collapsible">
+					<h3 class="stopSelections" id="embedHeader">Embed Map</h3>
+					<input type="button" value="Generate HTML" onclick="generateEmbedMapHTML()">
+					<input type="text" name="embedHtml" id="embedHtml" value="" data-mini="true" />
+
+<!-- 					<p class="howToShare"><a href="#" id="howToShare" title="Using the Create Share Link Tool"></a></p>
+					<div class="howToShare-content">
+						<p>
+							<em>Create Share Link</em> tool creates a URL that captures the current map state (scale and extent, layers turned on, etc.). You may send this link to others to paste into web browsers so that they can have the same view of the map as you.
+							<br/><br/><strong>Steps:</strong>
+							<br/>
+							<ul>
+								<li>Press "Create Share Link" button.</li>
+								<li>Copy the link and past into email or other documents you want to share.</li>
+								<li>If you would like to share the link via social media tools, click one of the social media icons to open that application and send the link.</li>
+							</ul>
+						</p>
+					</div>
+ -->
+				</div>
+				<!-- End of Embed Map collapsible content -->
+
+
+				<div data-role="collapsible">
+					<h3 class="stopSelections">Select Features</h3>
+						<div id="selection-tools" data-role="controlgroup" data-corners="false" data-type="horizontal">
+							<a href="javascript:startSelecting('add')" data-role="button" data-corners="false" id="selection-add" class="selection-add" title="Add/Remove Features" rel="tooltip"></a>
+							<a href="#" data-role="button" data-corners="false" id="selection-stop" class="selection-stop stopSelections" title="Stop Modifying Selections" rel="tooltip"></a>
+							<a href="javascript:clearSelection();" data-role="button" data-corners="false" id="selection-clear" class="selection-clear stopSelections" title="Delete All Selections" rel="tooltip"></a>
+						</div>
+						<p class="howToSelectFeatures"><a href="#" id="howToSelectFeatures" title="How to Select Features"></a></p>
+					<p class="howToSelectFeatures-content">
+							After opening the Select Features Tool:<br /><br />
+							<strong><em>Step 1:</strong></em>  Click on the Add/remove features icon.<br /><br />
+							<strong><em>Step 2:</strong></em> Click on features on the map. By default, Buildings, Parking Lots, and UA Site Points are selectable. Several other layers are selectable once they are turned on within the TOC. This Includes:<br /><br />
+
+								&bull;Campus Residential<br /><br />
+								&bull;Outdoor Destinations / Campus Open Spaces<br /><br />
+								&bull;Athletics<br /><br />
+								&bull;Trees<br /><br />
+								&bull;Campus Development Projects<br /><br />
+								&bull;Project Web Cams<br /><br />
+
+
+							You may de-select a feature by clicking on it a second time.<br /><br />
+
+							<strong><em>Step 3:</strong></em> To stop selecting features, click the Stop Modifying Selections icon. Selected features will remain selected even if you close the Tools Panel, zoom in, or out, etc., but you will no longer be able to select/de-select features.<br /><br />
+
+							<strong><em>Step 4:</strong></em> To deselect all features, click the Delete All Selections icon.<br /><br />
+					</p>
+
+				</div>
+				<!-- End of Select Features collapsible content -->
+
+				<div data-role="collapsible">
+					<h3 class="stopSelections">More</h3>
+					<div> Coming Soon!!! </div>
+				</div>
+				<!-- End of Help collapsible content -->
+
+			</div>
+		</div>
+		<!-- End of Tools panel -->
+
+
+		<!-- Popup shown after Measure is complete -->
+		<div id="measure-popup" data-role="popup" class="measure-popup" style="max-width: 280px">
+
+			<!--<a href="#" id="popup-close" data-rel="back" data-role="button" data-theme="b" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>-->
+			<div class="closePanel" onclick="closePopup()">x</div>
+			<div id="popup-content"></div>
+
+			<select name="options" id="measure_options" data-native-menu="false" data-corners="false">
+				<option></option>
+			</select>
+
+		</div>
+		<!-- End of Measure pop-up -->
+
+
+
+		<!-- Help panel - Yet to be implemented -->
+		<div data-role="panel" data-corners="false" data-dismissible="false" data-position="right" data-animate="true" data-display="overlay" data-position-fixed="true" data-swipe-close="false" data-theme="a" id="help-panel">
+
+			<h3 id="helpHeader" class="panelHeader">HELP</h3>
+			<div class="closePanel" onclick="closePanel('help-panel')"></div>
+
+			<div data-role="collapsible">
+				<h3>Help</h3>
+				<div> Coming Soon!!! </div>
+			</div>
+
+		</div>
+		<!-- End of Help panel -->
+
+
+		<!-- Search panel -->
+		<div data-role="panel" data-dismissible="false" data-position="right" data-animate="true" data-display="overlay" data-position-fixed="true" data-swipe-close="false" data-theme="c" id="search-panel">
+
+			<h3 id="searchHeader" class="panelHeader">SEARCH</h3>
+			<div class="closePanel" onclick="closePanel('search-panel')"></div>
+
+			<div data-role="inlinetabs" data-content-theme="d" data-mini="true">
+		    <ul>
+		        <li data-tab="search">Search</li>
+		        <li data-tab="query_a_layer">Query</li>
+		    </ul>
+
+		    <div data-tab="search">
+
+		        <input type="text" name="search" id="search_input" class="search_input" placeholder="Search layers..." data-corners="false" data-clear-btn="true" onkeydown="javascript:search_keydown(event)" />
+						<div id="search_icon" class="search_icon" onclick="javascript:search_keydown('doSearch')"></div>
+
+						<p class="refineSearch"><a href="#" id="refineSearch">Refine your search</a> </p>
+						<p class="refineSearch-content">
+							<input type="checkbox" name="refineCheckbox" id="uaStreets" class="custom"/>
+							<label for="uaStreets">Streets</label>
+							<input type="checkbox" name="refineCheckbox" id="uaAttractionsLandmarks" class="custom"/>
+							<label for="uaAttractionsLandmarks">UA Attractions &amp; Landmarks</label>
+							<input type="checkbox" name="refineCheckbox" id="uaLandscapeInformation" class="custom"/>
+							<label for="uaLandscapeInformation">Landscape Information</label>
+							<input type="checkbox" name="refineCheckbox" id="uaProjects" class="custom"/>
+							<label for="uaProjects">UA Projects and Construction</label>
+							<input type="checkbox" name="refineCheckbox" id="basicSearch" class="custom" checked/>
+							<label for="basicSearch">Basic Search</label>
+						</p>
+
+						<p class="howToSearch"><a href="#" id="howToSearch" title="Using the Search Tool"></a></p>
+						<p class="howToSearch-content">
+							Basic search is performed on Buildings, Major Athletic Sites, UA Sites Statewide, Parking Lots, Outdoor Destinations.<br/><br/>
+							<em>Refine Your Search</em> allows you to select additional categories of data to search, including the basic search layers if you choose.
+						</p>
+						<div id="search_error"></div>
+
+		    </div>
+
+		    <div data-tab="query_a_layer">
+
+		    		<select id="select_a_layer" data-native-menu="true" data-corners="false" data-theme="f" onchange="javascript:layerChange(this)">
+							<option value="">Choose a layer</option>
+							<option value="74">Buildings</option>
+							<option value="128">Parking Lots</option>
+							<option value="15" turnOnLayer="lyrTrees">Trees</option>
+							<option value="107">Streets</option>
+						</select>
+
+						<!-- Select elements display can't be set to NONE. Instead, wrapping it in a DIV: http://stackoverflow.com/questions/11968710/jquery-mobile-displays-hidden-select-element -->
+						<div id="options_wrapper" class="options_wrapper">
+							<select id="select_a_field" data-native-menu="true" data-corners="false" data-theme="f" onchange="javascript:fieldChange(this)">
+								<option value="">Select a Field</option>
+							</select>
+
+							<select id="select_a_operator" data-native-menu="true" data-corners="false" data-theme="f" onchange="">
+								<option value="">Operator</option>
+								<option value="=">=</option>
+								<option value=">">&gt;</option>
+								<option value="<">&lt;</option>
+								<option value="<>">&lt;&gt;</option>
+							</select>
+
+							<select id="select_a_value" data-native-menu="true" data-corners="false" data-theme="f" onchange="">
+								<option value="">Value</option>
+							</select>
+
+							<a id="generate_query" class="generate_query" data-type="button" href="javascript:generate_query()" data-corners="false" data-theme="b">
+								<img class="searchBackImage" src="images/front.png" />
+							</a>
+
+							<select id="select_a_connecting_operator" data-native-menu="true" data-corners="false" data-theme="f" onchange="" disabled>
+								<option value="">Connecting Operator</option>
+								<option value="AND">AND</option>
+								<option value="OR">OR</option>
+								<option value="NOT">NOT</option>
+								<option value="Like">Like</option>
+							</select>
+
+							<a id="generate_connecting_query" class="generate_query" data-type="button" href="javascript:generate_connecting_query()" data-corners="false" data-theme="b">
+								<img class="searchBackImage" src="images/front.png" />
+							</a>
+
+							<input type="text" id="query_string" class="query_string" />
+
+							<!--<label for="flip-3">Flip toggle switch:</label>-->
+					    <select name="appendQueryString" id="appendQueryString" data-role="slider" data-mini="true">
+					        <option value="OFF">OFF</option>
+					        <option value="ADD">ADD</option>
+					    </select>
+
+							<a id="query_button" data-role="button" data-corners="false" data-theme="b" href="javascript:queryLayer()">Query</a>
+
+							<div id="query_error"></div>
+		        		</div>
+		        		<p class="howToQuery"><a href="#" id="howToQuery" title="Using the Query Tool"></a> </p>
+							<p class="howToQuery-content">
+								When you click on the Query tab it provides an option to Choose a Layer (green box). Click on the box and choose a layer from the drop down list.
+								<br/><br/>Once you’ve selected a layer, the layer name will be placed in the green box.
+								<br/><br/>Also, once the selected layer name is in the first green box, three additional green boxes appear for you to make selections from. The <em>Select a Field</em> box provides a list of available data columns to choose from which come from the selected layer. The <em>Operator</em> box provides a choice of operators that define how to filter the data, such as  =, &lt;, &gt;.  The <em>Value</em> box provides a list of data values that are included in the Field you selected.
+								<br/><br/>Once you’ve selected a Field, Operator, and Value, these selections are shown on the green boxes. In the example below, the layer <em>Buildings</em> was selected, along with the Field <em>BuildingUse</em>, the Operator =, and the Value <em>UA Residence Halls</em>.
+								<br/><br/>Once you’ve make the selections above, press the blue box with the arrow and the query string will then be placed in the white box below.
+								<br/><br/>Once the query string has been added to the white box, press the blue Query box, at which point the query will be executed and the results of the query will show in a new window at the bottom of the map
+								<br/><br/>In addition to a tabular listing of the query results in the bottom window, the results are highlighted in green on the map as well.
+								<br/><br/>If you click on one of the rows in the results window, that row will be highlighted in darker green and the corresponding feature will be highlighted on the map as well.
+								<br/><br/>Once your created an initial query, you may then refine the same query with additional fields/values from the same layer. To start, press the “OFF” button.
+								<br/><br/>After pressing the “OFF” button, it becomes blue and reads “ADD”.
+								<br/><br/>Once the button reads “ADD”, you may select another field, operator, and value. In addition to these parameters, you need to also make a choice from the green box labled “Connecting”. This defines how the original and new query statements should be appended together (e.g. AND, OR, NOT). Note that you are only given the choice to refine queries on a single map layer.
+								<br/><br/>Once you’ve selected a Field/Operator/Value/Connector for your refined query, press the blue arrow button, and the new query parameters will be appended to your original query parameters in the white box.
+								<br/><br/>Once the new parameters are appended, press the blue query button to execute the query. You may append additional query statements to the prior ones using the same method.
+							</p>
+
+		    </div>
+			</div>
+
+
+
+		</div>
+		<!-- End of Search panel -->
+
+
+
+
+		<!-- Search results panel -->
+		<div data-role="panel" data-dismissible="false" data-position="right" data-animate="false" data-display="overlay" data-position-fixed="true" data-swipe-close="false" data-theme="c" id="search-results">
+
+			<h3 id="searchResultsHeader" class="panelHeader">SEARCH RESULTS</h3>
+			<div class="closePanel" onclick="closePanel('search-results')">x</div>
+
+
+			<div class="search_header_div">
+				<a id="back_button" class="back_button" data-type="button" href="#search-panel" data-corners="false" data-theme="b">
+					<img class="searchBackImage" src="images/back.png" />
+				</a>
+				<div id="search_results_header"></div>
+			</div>
+
+			<div id="search_output">
+				<ul id='search_ul' data-role="listview">
+				</ul>
+			</div>
+
+		</div>
+		<!-- End of Search results panel -->
+
+
+		<!--More Info Panel shows up when a search result is selected. Need to change Id of the panel -->
+		<div data-role="panel" data-dismissible="false" data-position="right" data-animate="false" data-display="overlay" data-position-fixed="true" data-swipe-close="false" data-theme="c" id="search-results-2">
+
+			<h3 id="searchMoreInfoHeader" class="panelHeader">MORE INFO</h3>
+			<div class="closePanel" onclick="closePanel('search-results-2')">x</div>
+
+			<div class="search_header_div">
+				<a id="back_button_2" class="back_button" data-type="button" href="#search-results" data-corners="false" data-theme="b">
+					<!--<img class="searchBackImage" src="images/back.png" />-->
+				</a>
+			</div>
+
+			<div id="search_output_2"></div>
+
+		</div>
+		<!-- End of More Info panel -->
+
+		<!--Identify results panel -->
+		<div data-role="panel" data-dismissible="false" data-position="left" data-animate="true" data-display="overlay" data-position-fixed="true" data-swipe-close="false" data-theme="c" id="identify-results">
+
+			<h3 id="identifyResultsHeader" class="panelHeader">IDENTIFY RESULTS</h3>
+			<div class="closePanel" onclick="closePanel('identify-results')">x</div>
+
+
+		</div>
+		<!-- End of Identify results panel -->
+
+		<!-- Legend Panel -->
+		<div data-role="panel" data-dismissible="false" data-position="right" data-animate="true" data-display="overlay" data-position-fixed="true" data-swipe-close="false" data-theme="c" id="legend-panel">
+			<h3 id="legendHeader" class="panelHeader">LEGEND</h3>
+			<div class="closePanel" onclick="closePanel('legend-panel')"></div>
+			<div class="search_header_div">
+				<a id="back_button_3" class="back_button" data-type="button" href="#toc-panel" data-corners="false" data-theme="b">
+
+				</a>
+			</div>
+
+			<div id="legendDiv"></div>
+
+		</div>
+		<!-- End of Legend panel -->
+
+		<!-- TOC MARKUP / CHECK toc.js for functionality -->
+		<div data-role="panel" data-dismissible="false" data-position="right" data-animate="true" data-display="overlay" data-position-fixed="true" data-swipe-close="false" data-theme="a" id="toc-panel">
+
+			<h3 id="tocHeader" class="panelHeader">TABLE OF CONTENTS</h3>
+			<div class="closePanel" onclick="closePanel('toc-panel')"></div>
+
+			<!--<div class="loginButton" data-role="button" data-theme="b" data-corners="false">LOGIN</div>
+			<div class="logoutButton" data-role="button" data-theme="a" data-corners="false">LOGOUT</div>-->
+
+			<div class="aerialDiv">
+				<a id="toggleAerialButton" class="normalMap" href="javascript:toggleAerial();" data-role="button" data-corners="false" title="Toggle Aerial/Basemap" ></a>
+			</div>
+
+			<div class="legendButtonContainer">
+				<a id="legendButton" href="#legend-panel" data-role="button" data-corners="false" title="Legend" ></a>
+			</div>
+
+			<div class="clearTOCButtonContainer">
+				<a id="clearTOC" href="javascript:clearTOC();" data-role="button" data-corners="false" title="Clear TOC" ></a>
+			</div>
+
+			<div class="identifyDiv">
+				<a id="identifyButton" href="javascript:identifyActive();" data-role="button" data-corners="false" title="Identify" ></a>
+			</div>
+
+
+			<div class="using-toc">
+				<a href="#" id="usingTOC" title="Using the TOC" data-role="button" data-corners="false"></a>
+			</div>
+
+			<p class="using-toc-content">
+
+				Some layers are only available to be turned at certain scale levels – If a layer is “greyed out” try zooming in farther. <br/><br/>
+				Informational flyout windows are provided when some features are clicked on. Buildings and Parking Lot flyouts are always available, while others are only available when the TOC layer is turned on. <br/><br/>
+				Clickable layers combine or overlap each other as you turn them on and off. If something doesn’t look right, check the layer list to see if something is turned on that shouldn't be - or vice versa. <br/>
+
+			</p>
+
+			<div id='tocTree'>
+				<ul>
+					<li id="groupAttractions" item-expanded='true'><strong>UA Attractions and <br />Landmarks</strong>
+						<ul>
+							<li class="lyrAthletics">Athletics</li>
+							<li class="lyrPlacesToEat">Places to Eat</li>
+							<li class="lyrLibraries">Libraries</li>
+							<li class="lyrMuseums">Museums</li>
+							<li class="lyrGalleries">Galleries</li>
+							<li class="lyrPerformanceVenues">Performance Venues</li>
+							<li class="lyrCampusResidential">Campus Residential</li>
+							<li class="lyrOutdoorDestinations">Outdoor Destinations</li>
+							<!-- CAMPUS_BI Layers -->
+							<li class="lyrEvents campusBI">Events</li>
+						</ul>
+					</li>
+
+					<li id="groupAccessibility" item-expanded='false'><strong>Wayfinding and <br />Accessibility</strong>
+						<ul>
+							<li class="lyrDirectories">Directory Map locations</li>
+							<li class="lyrAccessibleEntrances">Accessible Entances</li>
+							<li class="lyrRamps">Pedestrian Ramps</li>
+							<li class="lyrListeningDevices">Audible / Listening Devices</li>
+							<li class="lyrElevators">Elevators</li>
+							<li class="lyrRestrooms">Restrooms</li>
+                            <li class="lyrUnderpasses">Underpasses</li>
+							<!-- CAMPUS_BI Layers -->
+							<li class="lyrInteriorWayfinding campusBI">Interior Wayfinding Maps</li>
+						</ul>
+					</li>
+
+					<li id="groupSafety" item-expanded='false'><strong>Health, Safety, and <br />Emergencies</strong>
+						<ul>
+							<li class="lyrUAPD">UA Police</li>
+							<li class="lyrAEDs">AEDs</li>
+							<li class="lyrBluelightPhones">Bluelight Emergency Phones</li>
+							<li class="lyrFireLanes">Fire Lanes</li>
+							<li class="lyrBollards">Bollards - Vehicle Control</li>
+							<li class="lyrHospital">Hospital (UAMC)</li>
+							<li class="lyrCampusHealth">Campus Health</li>
+							<li class="lyrRecCenter">Student Recreation Center</li>
+							<li class="lyrFitnessStations">Fitness stations / routes</li>
+							<li id="groupSafeRide" item-expanded='false'><em>Safe Ride Program</em>
+								<ul>
+									<li class="lyrSafeRideBoundary">Service Boundaries</li>
+									<!--<li class="lyrSafeRidePickUp">Pick Up Location</li>-->
+								</ul>
+							</li>
+							<!-- CAMPUS_BI Layers -->
+							<li class="lyrSecurityCameras campusBI">Security Cameras</li>
+						</ul>
+					</li>
+
+					<li id="groupBuildingInfo" item-expanded='false'><strong>Building Information</strong>
+						<ul>
+							<li class="lyrStateLocations">State UA Locations</li>
+							<li class="lyrAccessibleEntrances">Building Doors</li>
+							<li class="lyrListeningDevices">Audible / Listening Devices</li>
+							<li class="lyrElevators">Elevators</li>
+							<li class="lyrRestrooms">Restrooms</li>
+							<!--<li class="lyrClassrooms">Classrooms</li>-->
+							<li id="groupBuildingLabels" item-expanded='false'><em>Customize Buildings</em>
+								<ul>
+								<div id="buildingLabelsDisclaimer">Enabling building labels will <br />obscure any color coding <br />applied elsewhere</div>
+									<li class="lyrNoBuildingLabels">No Building Labels</li>
+									<li class="lyrName">Name Labels</li>
+									<li class="lyrAddress">Address Labels</li>
+									<li class="lyrNumber">Number Labels</li>
+									<li class="lyrNameAddressNumber">Name, Address, <br /> and Number Labels</li>
+								</ul>
+							</li>
+							<!-- CAMPUS_BI Layers -->
+							<li class="lyrFloorplans campusBI">Ground Floor Floorplans</li>
+							<li class="lyrDeptHomeOffices campusBI">College &amp; Department Home Offices</li>
+						</ul>
+					</li>
+
+					<li id="groupParking" item-expanded='false'><strong>Parking</strong>
+						<ul>
+							<li class="lyrDisabledParking">Disabled Parking</li>
+							<li class="lyrLotSpecific">Lot Specific Parking</li>
+							<li class="lyrZone1">Zone 1</li>
+							<li class="lyrSSL">SSL</li>
+							<li class="lyrService">Service</li>
+							<li class="lyrSLD">Misc. <br />Service/Loading/Disabled<br />Lots</li>
+							<li class="lyrMotorcycles">Motorcycles</li>
+							<li class="lyrVisitor">Visitor</li>
+							<li class="lyrBikeParkingAreas">Bike Parking Areas</li>
+							<li class="lyrAllSurfaceLots">Highlight all Surface <br />Parking Lots</li>
+							<li class="lyrAllParkingGarages">Highlight all Parking Garages</li>
+							<!-- CAMPUS_BI Layers -->
+							<li class="lyrGarageAvailability campusBI">Current Garage Parking Availability</li>
+						</ul>
+					</li>
+
+					<li id="groupTransit" item-expanded='false'><strong>Transit</strong>
+						<ul>
+							<li id="groupCatTranRoutes" item-expanded='false'><em>Cat Tran Routes</em>
+								<ul>
+									<li class="lyrCatTranGreen">Outer Campus Loop<br /> (Green)</li>
+									<li class="lyrCatTranNight">Night Cat<br /> (Black)</li>
+									<li class="lyrCatTranOrange">Mountain Ave. Route<br /> (Orange)</li>
+									<li class="lyrCatTranPurple">North South Route<br /> (Purple)</li>
+									<li class="lyrCatTranTeal">Inner Campus Route<br /> (Teal)</li>
+									<li class="lyrCatTranUSA">USA Downtown Route<br /> (Blue)</li>
+									<!-- <li class="lyrCatTranMauve">Southwest Off Campus<br /> UA Mall Route<br /> (Mauve)</li> -->
+								</ul>
+							</li>
+							<li class="lyrCatTranStops">Cat Tran Stops</li>
+							<li class="lyrSunTranStops">Sun Tran Stops</li>
+							<li class="lyrSunLinkStreetCarRoute">Sun Link Streetcar Route</li>
+							<li class="lyrStreetCarStops">Sun Link Street Car Stops</li>
+						</ul>
+					</li>
+
+					<li id="groupWalkingBiking" item-expanded='false'><strong>Walking and Biking</strong>
+						<ul>
+							<li class="lyrRegionalBikeRoutes">Regional Bike Routes</li>
+							<li class="lyrCampusBikeways">Campus Dedicated Bikeways</li>
+							<li class="lyrBikeParkingAreas">Bike Parking Areas</li>
+							<li class="lyrWalkways">Walkways</li>
+                            <li class="lyrUnderpasses">Underpasses</li>
+							<li id="groupStreetLabels" item-expanded='false'><em>Customize Streets</em>
+								<ul>
+									<li class="lyrNoStreetLabels">No Street Labels</li>
+									<li class="lyrStreetLabels">Street Labels</li>
+									<li class="lyrIntersectionLabels">Intersection Labels</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+
+					<li id="groupSpecialTransportation" item-expanded='false'><strong>Special Transportation<br /> Services</strong>
+						<ul>
+							<li id="groupSafeRideProgram" item-expanded='false'><em>Safe Ride Program</em>
+								<ul>
+									<li class="lyrSafeRideBoundary">Service Boundaries</li>
+									<!--<li class="lyrSafeRidePickup">Pick Up Locations</li>-->
+								</ul>
+							</li>
+							<!--<li class="lyrCarSharing">Car Sharing</li>
+							<li class="lyrBikeValet">Bike Valet</li>-->
+						</ul>
+					</li>
+
+					<li id="groupLandscape" item-expanded='false'><strong>Landscape Information</strong>
+						<ul>
+							<li class="lyrTrees">Trees</li>
+							<li id="groupTrees" item-expanded='false'><em>Tree Labels</em>
+								<ul>
+									<li class="lyrTreesCommonName">Common Names</li>
+									<li class="lyrTreesGenSpec">GenSpec Names</li>
+									<li class="lyrTreesPlantID">Plant ID#</li>
+								</ul>
+							</li>
+							<li class="lyrWaterFeatures">Water Features</li>
+							<li class="lyrPublicArt">Public Art</li>
+							<li class="lyrOutdoorDestinations">Campus Open Spaces</li>
+							<li class="lyrLandscapeCover">Landscape Cover</li>
+						</ul>
+					</li>
+
+					<li id="groupProjects" item-expanded='false'><strong>UA Projects and<br /> Construction</strong>
+						<ul>
+							<li class="lyrProjects">Campus Development<br /> Projects</li>
+							<li class="lyrProjectsNamesLabels">Development Project Labels</li>
+							<li class="lyrProjectsWebCams">Projects Web Cams</li>
+							<li class="lyrConstructionSites">Construction Sites</li>
+							<!--<li class="lyrConstructionDetours">Construction Detours</li>-->
+							<li class="lyrSurveyControlPoints">Survey Control Points</li>
+							<li class="lyrPlanningAreaBoundary">Planning Area Boundary</li>
+						</ul>
+					</li>
+
+					<li id="groupPlans" item-expanded='false'><strong>Campus Plans and<br /> Analytics</strong>
+						<ul>
+							<li class="lyrPlanningAreaBoundary">Planning Area Boundary</li>
+							<li class="lyrNationalRegisterDistrict">National Register District</li>
+							<li class="lyrNationalRegisterBuildings">National Register Buildings</li>
+							<li class="lyrUAProperty">UA Property</li>
+							<li id="groupBuildingClassifications" item-expanded='false'><em>Building Classifications</em>
+								<ul>
+									<li class="lyrBuildingSizeGSF">Size / GSF</li>
+									<li class="lyrBuildingUse">Use</li>
+									<li class="lyrBuildingAge">Age</li>
+								</ul>
+							</li>
+							<li class="lyrNeighborhoodAssociations">Neighborhood Associations</li>
+							<li class="lyr2009CampusPlanGIS">2009 Campus Plan<br /> (GIS Layers)</li>
+							<li class="lyr2009CampusPlanGraphic">2009 Campus Plan<br /> (Graphic Layer)</li>
+						</ul>
+					</li>
+
+					<li id="groupSustainability" item-expanded='false'><strong>Campus Sustainability</strong>
+						<ul>
+							<li class="lyrGreenTourSites">Green Tour Sites</li>
+							<li class="lyrRainWaterHarvestingSites">Rain Water Harvesting Sites</li>
+							<li class="lyrLEEDCertifiedBuildings">LEED Certified Buildings</li>
+							<!--<li class="lyrTransportation">Transportation</li>
+							<li class="lyrResearchTeaching">Research / Teaching</li>-->
+						</ul>
+					</li>
+
+					<li id="groupComputing" item-expanded='false'><strong>Computing</strong>
+						<ul>
+							<!--<li class="lyrWirelessServiceAreas">Wireless Service Areas</li>-->
+							<li class="lyrComputerLabs">Computer Labs</li>
+						</ul>
+					</li>
+
+					<li id="groupOperations" item-expanded='false'><strong>University Operations</strong>
+						<ul>
+							<!--<li class="lyrDeliveryZones">Delivery Zones</li>-->
+							<!--<li class="lyrLoadingRamps">Loading Ramps and Docks</li>-->
+							<li class="lyrServiceElevators">Service Elevators</li>
+							<!--<li id="groupBuildingContacts" item-expanded='false'><em>Building Contacts</em>
+								<ul>
+									<li class="lyrMainCampusAcademic">Main Campus Academic Buildings</li>
+									<li class="lyrResidenceLife">Residence Life</li>
+									<li class="lyrICA">ICA</li>
+									<li class="lyrAHSC">AHSC</li>
+									<li class="lyrUAMClinics">UAM Clinics</li>
+									<li class="lyrAgricultureCenters">Agriculture Centers</li>
+								</ul>
+							</li>-->
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+        </div>
+
+	<form id="customError" name="customError" data-ajax="false" method="post">
+		<input type="hidden" id="errorMessage" value="Default custom error message" name="errorMessage"/>
+	</form>
+
+        <form id="shareForm" data-ajax="false" method="post" enctype="multipart/form-data">
+                <textarea type="text" id="shareData" name="shareData" style="visibility: hidden" /></textArea>
+        </form>
+
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-46249105-1', 'arizona.edu');
+		ga('send', 'pageview');
+	</script>
+
+</body>
+</html>
