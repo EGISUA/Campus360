@@ -1,2 +1,2 @@
-//http://services.maps.arizona.edu/pdc/rest/services/
+//http://services.maps.arizona.edu/pdc/rest/services/ <!--Old version info -->
 http://pdc-betagis2.catnet.arizona.edu:6080/arcgis/rest/services/
