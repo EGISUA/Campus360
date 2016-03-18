@@ -1,2 +1,2 @@
-//http://services.maps.arizona.edu/pdc/rest/services/ <!--This is change in Master-->
+//http://services.maps.arizona.edu/pdc/rest/services/ <!--This is change in test-->
 http://pdc-betagis2.catnet.arizona.edu:6080/arcgis/rest/services/
